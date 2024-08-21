@@ -265,12 +265,13 @@ int main() {
                                    49, 50, 51
     };
 
+
     float grassVertices[] = {
             //postion            // texture coords
-            15.0f, -1.01f, 15.0f,  //1.0f, 1.0f,
-            15.0f, -1.01f, -15.0f, //1.0f, 0.0f,
-            -15.0f, -1.01f, -15.0f, //0.0f, 0.0f,
-            -15.0f, -1.01f, 15.0f, //0.0f, 1.0f
+            15.0f, -1.01f, 15.0f,  1.0f, 1.0f,
+            15.0f, -1.01f, -15.0f, 1.0f, 0.0f,
+            -15.0f, -1.01f, -15.0f, 0.0f, 1.0f,
+            -15.0f, -1.01f, 15.0f, 0.0f, 0.0f
     };
     unsigned int grassIndices[] = {
             0, 1, 3,
@@ -322,7 +323,7 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
 
-    // grass VAO //nesto
+    // grass VAO
     unsigned int grassVBO, grassVAO, grassEBO;
     glGenVertexArrays(1, &grassVAO);
     glGenBuffers(1, &grassVBO);
@@ -337,13 +338,13 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(grassIndices), grassIndices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    /*
     // texture coord attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    */
+
+
     // river VAO
     unsigned int riverVBO, riverVAO, riverEBO;
     glGenVertexArrays(1, &riverVAO);
@@ -383,7 +384,7 @@ int main() {
 
     unsigned int riverTexture = loadTexture(FileSystem::getPath("resources/textures/river.jpg").c_str());
     unsigned int riverTextureSpec = loadTexture(FileSystem::getPath("resources/textures/river_specular.jpg").c_str());
-    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass.jpg").c_str());
+    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/skybox/rainbow_dn.png").c_str());
 
     vector<std::string> faces
             {
@@ -466,8 +467,14 @@ int main() {
         glBindVertexArray(riverVAO);
         glDrawElements(GL_TRIANGLES, 52*3, GL_UNSIGNED_INT, 0);
 
-        if (programState->ImGuiEnabled)
-            DrawImGui(programState);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK); 
+
+        //modeli
+
+
+
+        glDisable(GL_CULL_FACE);
 
         // draw skybox as last
         skyboxShader.use();
@@ -488,7 +495,8 @@ int main() {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS); // set depth function back to default
 
-
+        if (programState->ImGuiEnabled)
+            DrawImGui(programState);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -39,11 +39,24 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+struct PointLight{
+    glm::vec3 position;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
+    PointLight pointLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
 
@@ -146,13 +159,15 @@ int main() {
 
     // build and compile shaders
     // -------------------------
+    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader riverShader("resources/shaders/river.vs", "resources/shaders/river.fs");
     Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
 
     // load models
     // -----------
-
+    Model tree("resources/objects/realistic_tree/scene.gltf");
+    tree.SetShaderTextureNamePrefix(".model");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -214,55 +229,55 @@ int main() {
     };
 
     unsigned int riverIndices[] ={0, 1, 2,
-                                   1, 2, 3,
-                                   2, 3, 4,
-                                   3, 4, 5,
-                                   4, 5, 6,
-                                   5, 6, 7,
-                                   6, 7, 8,
-                                   7, 8, 9,
-                                   8, 9, 10,
-                                   9, 10, 11,
-                                   10, 11, 12,
-                                   11, 12, 13,
-                                   12, 13, 14,
-                                   13, 14, 15,
-                                   14, 15, 16,
-                                   15, 16, 17,
-                                   16, 17, 18,
-                                   17, 18, 19,
-                                   18, 19, 20,
-                                   19, 20, 21,
-                                   20, 21, 22,
-                                   21, 22, 23,
-                                   22, 23, 24,
-                                   23, 24, 25,
-                                   24, 25, 26,
-                                   25, 26, 27,
-                                   26, 27, 28,
-                                   27, 28, 29,
-                                   28, 29, 30,
-                                   29, 30, 31,
-                                   30, 31, 32,
-                                   31, 32, 33,
-                                   32, 33, 34,
-                                   33, 34, 35,
-                                   34, 35, 36,
-                                   35, 36, 37,
-                                   36, 37, 38,
-                                   37, 38, 39,
-                                   38, 39, 40,
-                                   39, 40, 41,
-                                   40, 41, 42,
-                                   41, 42, 43,
-                                   42, 43, 44,
-                                   43, 44, 45,
-                                   44, 45, 46,
-                                   45, 46, 47,
-                                   46, 47, 48,
-                                   47, 48, 49,
-                                   48, 49, 50,
-                                   49, 50, 51
+                                  1, 2, 3,
+                                  2, 3, 4,
+                                  3, 4, 5,
+                                  4, 5, 6,
+                                  5, 6, 7,
+                                  6, 7, 8,
+                                  7, 8, 9,
+                                  8, 9, 10,
+                                  9, 10, 11,
+                                  10, 11, 12,
+                                  11, 12, 13,
+                                  12, 13, 14,
+                                  13, 14, 15,
+                                  14, 15, 16,
+                                  15, 16, 17,
+                                  16, 17, 18,
+                                  17, 18, 19,
+                                  18, 19, 20,
+                                  19, 20, 21,
+                                  20, 21, 22,
+                                  21, 22, 23,
+                                  22, 23, 24,
+                                  23, 24, 25,
+                                  24, 25, 26,
+                                  25, 26, 27,
+                                  26, 27, 28,
+                                  27, 28, 29,
+                                  28, 29, 30,
+                                  29, 30, 31,
+                                  30, 31, 32,
+                                  31, 32, 33,
+                                  32, 33, 34,
+                                  33, 34, 35,
+                                  34, 35, 36,
+                                  35, 36, 37,
+                                  36, 37, 38,
+                                  37, 38, 39,
+                                  38, 39, 40,
+                                  39, 40, 41,
+                                  40, 41, 42,
+                                  41, 42, 43,
+                                  42, 43, 44,
+                                  43, 44, 45,
+                                  44, 45, 46,
+                                  45, 46, 47,
+                                  46, 47, 48,
+                                  47, 48, 49,
+                                  48, 49, 50,
+                                  49, 50, 51
     };
 
 
@@ -406,7 +421,15 @@ int main() {
     riverShader.setInt("material.diffuse", 0);
     riverShader.setInt("material.specular", 1);
 
+    PointLight& pointLight = programState->pointLight;
+    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
+    pointLight.ambient = glm::vec3(0.8, 0.6, 0.6);
+    pointLight.diffuse = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
+    pointLight.constant = 1.0f;
+    pointLight.linear = 0.09;
+    pointLight.quadratic = 0.032f;
 
 
 
@@ -432,11 +455,11 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // draw scene as normal
-
+        // view/projection/model
         glm::mat4 view = programState->camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 model = glm::mat4(1.0f);
+
         // graw grass
         grassShader.use();
         grassShader.setMat4("projection", projection);
@@ -467,12 +490,51 @@ int main() {
         glBindVertexArray(riverVAO);
         glDrawElements(GL_TRIANGLES, 52*3, GL_UNSIGNED_INT, 0);
 
+        ourShader.use();
+
+        ourShader.setVec3("pointLight.position", pointLight.position);
+        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
+        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        ourShader.setVec3("pointLight.specular", pointLight.specular);
+        ourShader.setFloat("pointLight.constant", pointLight.constant);
+        ourShader.setFloat("pointLight.linear", pointLight.linear);
+        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        ourShader.setVec3("viewPosition", programState->camera.Position);
+        ourShader.setFloat("material.shininess", 32.0f);
+
+        // view/projection transformations
+        projection = glm::perspective(glm::radians(programState->camera.Zoom),
+                                      (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+        view = programState->camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
+
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK); 
+        glCullFace(GL_FRONT);
 
-        //modeli
+        //trees
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(-10.0f, -1.0f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.003f));
+        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        tree.Draw(ourShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(0.0f, -1.0f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.35f));
+        model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        tree.Draw(ourShader);
 
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(10.0f, -1.0f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.32f));
+        model = glm::rotate(model, glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        tree.Draw(ourShader);
 
         glDisable(GL_CULL_FACE);
 

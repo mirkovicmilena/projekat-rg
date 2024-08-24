@@ -51,12 +51,21 @@ struct PointLight{
     float quadratic;
 };
 
+struct DirLight{
+    glm::vec3 direction;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
 struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
     PointLight pointLight;
+    DirLight dirLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
 
@@ -156,6 +165,11 @@ int main() {
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+    // blending
+    // -----
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
 
     // build and compile shaders
     // -------------------------
@@ -421,8 +435,9 @@ int main() {
     riverShader.setInt("material.diffuse", 0);
     riverShader.setInt("material.specular", 1);
 
+    // point light config
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
+    pointLight.position = glm::vec3(15.0f, 15.0, 0.0);
     pointLight.ambient = glm::vec3(0.8, 0.6, 0.6);
     pointLight.diffuse = glm::vec3(1.0, 1.0, 1.0);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
@@ -430,6 +445,14 @@ int main() {
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09;
     pointLight.quadratic = 0.032f;
+
+    // directionsl light config
+    DirLight& dirLight = programState->dirLight;
+    dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    dirLight.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+    dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+
 
 
 
@@ -473,11 +496,11 @@ int main() {
 
         // draw river
         riverShader.use();
-        riverShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        riverShader.setVec3("light.direction", dirLight.direction);
         riverShader.setVec3("viewPos", programState->camera.Position);
-        riverShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        riverShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        riverShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        riverShader.setVec3("light.ambient", dirLight.ambient);
+        riverShader.setVec3("light.diffuse", dirLight.diffuse);
+        riverShader.setVec3("light.specular", dirLight.specular);
         riverShader.setFloat("material.shininess", 32.0f);
         riverShader.setMat4("projection", projection);
         riverShader.setMat4("view", view);
@@ -492,6 +515,14 @@ int main() {
 
         ourShader.use();
 
+        // directional Light
+        ourShader.setVec3("dirLight.direction", dirLight.direction);
+        ourShader.setVec3("dirLight.ambient", dirLight.ambient);
+        ourShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        ourShader.setVec3("dirLight.specular", dirLight.specular);
+
+
+        // point light
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -511,7 +542,7 @@ int main() {
 
 
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+        glCullFace(GL_BACK);
 
         //trees
         model = glm::mat4(1.0f);
@@ -521,6 +552,7 @@ int main() {
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
 
+        /*
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f, -1.0f, -10.0f));
         model = glm::scale(model, glm::vec3(0.35f));
@@ -535,7 +567,7 @@ int main() {
         model = glm::rotate(model, glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
-
+        */
         glDisable(GL_CULL_FACE);
 
         // draw skybox as last

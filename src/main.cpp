@@ -603,6 +603,15 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    glDeleteVertexArrays(1, &skyboxVAO);
+    glDeleteBuffers(1, &skyboxVBO);
+    glDeleteVertexArrays(1, &riverVAO);
+    glDeleteBuffers(1, &riverVBO);
+    glDeleteBuffers(1, &riverEBO);
+    glDeleteVertexArrays(1, &grassVAO);
+    glDeleteBuffers(1, &grassVBO);
+    glDeleteBuffers(1, &grassEBO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();

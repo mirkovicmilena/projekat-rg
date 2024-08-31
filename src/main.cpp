@@ -184,6 +184,15 @@ int main() {
     Model tree("resources/objects/tree/scene.gltf");
     tree.SetShaderTextureNamePrefix("material.");
 
+    Model bridge("resources/objects/bridge/scene.gltf");
+    bridge.SetShaderTextureNamePrefix("material.");
+
+    Model cottage("resources/objects/house/scene.gltf");
+    cottage.SetShaderTextureNamePrefix("material.");
+
+    Model trees("resources/objects/trees/scene.gltf");
+    trees.SetShaderTextureNamePrefix("material.");
+
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 
@@ -438,12 +447,12 @@ int main() {
 
     // point light config
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(15.0f, 15.0, 0.0);
+    pointLight.position = glm::vec3(-15.0f, -15.0, 0.0);
     pointLight.ambient = glm::vec3(0.8, 0.6, 0.6);
     pointLight.diffuse = glm::vec3(1.0, 1.0, 1.0);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
-    pointLight.constant = 1.0f;
+    pointLight.constant = 10.0f;
     pointLight.linear = 0.09;
     pointLight.quadratic = 0.032f;
 
@@ -559,7 +568,7 @@ int main() {
 
         //trees
         model = glm::mat4(1.0f);
-        model = glm::translate(model,glm::vec3(-10.0f, -1.0f, -10.0f));
+        model = glm::translate(model,glm::vec3(-7.0f, -1.01f, -7.0f));
         model = glm::scale(model, glm::vec3(0.30f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
@@ -567,8 +576,8 @@ int main() {
 
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model,glm::vec3(0.0f, -1.0f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.40f));
+        model = glm::translate(model,glm::vec3(3.0f, -1.01f, -5.0f));
+        model = glm::scale(model, glm::vec3(0.30f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ourShader.setMat4("model", model);
@@ -576,11 +585,48 @@ int main() {
 
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model,glm::vec3(10.0f, -1.0f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.32f));
+        model = glm::translate(model,glm::vec3(10.0f, -1.01f, -7.0f));
+        model = glm::scale(model, glm::vec3(0.22f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
+
+        glCullFace(GL_BACK);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(-3.0f, -0.55f, -1.5f));
+        model = glm::scale(model, glm::vec3(0.4f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        bridge.Draw(ourShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(-3.0f, -1.01f, -9.0f));
+        model = glm::scale(model, glm::vec3(0.0035f));
+        ourShader.setMat4("model", model);
+        cottage.Draw(ourShader);
+
+        //background trees
+        for(int i = 0; i<4; i++){
+            model = glm::mat4(1.0f);
+            model = glm::translate(model,glm::vec3(-12.0f + i*7.0f, -1.01f, -12.0f));
+            model = glm::scale(model, glm::vec3(0.08f - i * 0.01 ));
+            model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(i*15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ourShader.setMat4("model", model);
+            trees.Draw(ourShader);
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model,glm::vec3(-12.0f, -1.01f, -12.0f + i*7.0f));
+            model = glm::scale(model, glm::vec3(0.08f - i * 0.01));
+            model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(i*15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ourShader.setMat4("model", model);
+            trees.Draw(ourShader);
+        }
+
+
+
 
         glDisable(GL_CULL_FACE);
 

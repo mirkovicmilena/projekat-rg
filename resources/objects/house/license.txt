@@ -1,0 +1,8 @@
+Model Information:
+* title:	Medieval House 01 (Mid Poly)
+* source:	https://sketchfab.com/3d-models/medieval-house-01-mid-poly-67e33f1ba7ea4d90bf9f637e3d2cd74a
+* author:	Kevin Saleh (https://sketchfab.com/Kevin.Saleh)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

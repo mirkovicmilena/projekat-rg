@@ -169,7 +169,7 @@ int main() {
     // blending
     // -----
     glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // build and compile shaders
     // -------------------------
@@ -178,10 +178,11 @@ int main() {
     Shader riverShader("resources/shaders/river.vs", "resources/shaders/river.fs");
     Shader grassShader("resources/shaders/grass.vs", "resources/shaders/grass.fs");
 
+
     // load models
     // -----------
-    Model tree("resources/objects/realistic_tree/scene.gltf");
-    tree.SetShaderTextureNamePrefix(".model");
+    Model tree("resources/objects/tree/scene.gltf");
+    tree.SetShaderTextureNamePrefix("material.");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -478,10 +479,13 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
         // view/projection/model
         glm::mat4 view = programState->camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 model = glm::mat4(1.0f);
+
 
         // graw grass
         grassShader.use();
@@ -515,6 +519,13 @@ int main() {
 
         ourShader.use();
 
+        view = programState->camera.GetViewMatrix();
+        projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        model = glm::mat4(1.0f);
+
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
         // directional Light
         ourShader.setVec3("dirLight.direction", dirLight.direction);
         ourShader.setVec3("dirLight.ambient", dirLight.ambient);
@@ -530,6 +541,7 @@ int main() {
         ourShader.setFloat("pointLight.constant", pointLight.constant);
         ourShader.setFloat("pointLight.linear", pointLight.linear);
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
@@ -540,23 +552,25 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
+        glDepthFunc(GL_LEQUAL);
 
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        glCullFace(GL_FRONT);
 
         //trees
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(-10.0f, -1.0f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.003f));
-        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.30f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
 
-        /*
+
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f, -1.0f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.35f));
-        model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.40f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
 
@@ -564,10 +578,10 @@ int main() {
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(10.0f, -1.0f, -10.0f));
         model = glm::scale(model, glm::vec3(0.32f));
-        model = glm::rotate(model, glm::radians(60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         tree.Draw(ourShader);
-        */
+
         glDisable(GL_CULL_FACE);
 
         // draw skybox as last

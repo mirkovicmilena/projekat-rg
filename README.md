@@ -21,7 +21,8 @@ Moving:
 - Models
 - Group A:
   - Cubemaps - skybox
--Group B:
+
+- Group B:
   - Parallax mapping (incomplete, not working :))
 
 # Technical Explanation
